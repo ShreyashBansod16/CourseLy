@@ -1,6 +1,7 @@
 import { ThemeProvider } from "@/components/theme-provider";
 import type { Metadata } from "next";
 import "./globals.css";
+import Navbar from "@/components/ownComponents/Navbar";
 
 export const metadata: Metadata = {
   title: "CSI-NextJS",
@@ -21,6 +22,7 @@ export default function RootLayout({
         enableSystem
         disableTransitionOnChange
         >
+          <Navbar />
           {children}
         </ThemeProvider>
       </body>
