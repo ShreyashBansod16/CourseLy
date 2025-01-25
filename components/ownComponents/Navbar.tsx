@@ -13,8 +13,8 @@ export default function Navbar() {
       {/* Navbar Links */}
       <div className="flex items-center gap-4 text-xl font-semibold">
         <Link href="/">Home</Link>
-        <Link href="/courses/allcourses">Courses</Link>
-        <Link href="/resources/allresource">Resources</Link>
+        <Link href="/pages/courses/allcourses">Courses</Link>
+        <Link href="/pages/resources/allresource">Resources</Link>
         <Link href="/contact">Contact</Link>
       </div>
 

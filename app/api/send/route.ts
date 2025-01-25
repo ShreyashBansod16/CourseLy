@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
       from: "onboarding@resend.dev",
       to: ["msaif8747@gmail.com"],
       subject: `New Message from ${bodyData.username}`,
-      //@ts-ignore
+      // @ts-expect-error
       react: EmailTemplate({
         user: bodyData.username,
         userEmail: bodyData.email,
