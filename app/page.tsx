@@ -8,13 +8,13 @@ export default function Home() {
       <h1 className="font-bold text-2xl">Hello Admin Welcome to Vi-Dash</h1>
       <div className="flex gap-4">
         <Link
-          href="/courses/addcourse"
+          href="/pages/courses/addcourse"
           className="flex items-center gap-2 border text-blue-500 border-white rounded-md p-2"
         >
           Add Cource
         </Link>
         <Link
-          href="/resources/addresource"
+          href="/pages/resources/addresource"
           className="flex items-center gap-2 border text-blue-500 border-white rounded-md p-2"
         >
           Add Resource

@@ -17,7 +17,7 @@ export function CourseCard({ imageUrl, title, description, onView, onBuy }: Cour
     <Card className="flex flex-col sm:flex-row overflow-hidden">
       <div className="w-full sm:w-1/3">
         <AspectRatio ratio={16 / 9}>
-          <Image src={imageUrl || "/placeholder.svg"} alt={title} fill className="object-cover" />
+          <Image src={imageUrl || "/placeholder.svg"} alt={title} fill className="object-cover"  />
         </AspectRatio>
       </div>
       <CardContent className="flex-1 p-4 sm:p-6">
