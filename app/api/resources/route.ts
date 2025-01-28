@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
 
   // Create a Supabase client with the user's token
   const supabase = createClient(
-    'https://rbwyllcbtgtflzovqdpr.supabase.co',
+    `${process.env.NEXT_PUBLIC_SUPABASE_URL}`,
     `${process.env.NEXT_PUBLIC_SUPABASE_KEY}`
   );
 
@@ -18,5 +18,5 @@ export async function POST(req: NextRequest) {
     return new Response(JSON.stringify({ error: error.message }), { status: 400 });
   }
 
-  return new Response(JSON.stringify({ message: 'Resource added successfully', data }), { status: 200 });
+  return new Response(JSON.stringify({ message: 'Resource added successfully', data:data }), { status: 200 });
 }

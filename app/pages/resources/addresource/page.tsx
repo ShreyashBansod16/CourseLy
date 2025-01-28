@@ -67,9 +67,10 @@ export default function AddResource() {
       });
 
       if (response.ok) {
+        console.log(response)
         const data = await response.json();
         console.log("Resource added:", data);
-        router.push("/resources/allresource"); // Navigate to resources page
+        router.push("/pages/resources/allresource"); // Navigate to resources page
       } else {
         setError("Failed to add resource");
       }
@@ -127,7 +128,7 @@ export default function AddResource() {
               {loading ? "Loading..." : "Add Resource"}
             </button>
             <button
-              onClick={() => router.push("/resources/allresource")}
+              onClick={() => router.push("/pages/resources/allresource")}
               className="px-4 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300"
             >
               Cancel
