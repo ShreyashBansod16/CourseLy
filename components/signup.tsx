@@ -1,27 +1,75 @@
-"use client"
-
-import { useState } from "react"
-import Link from "next/link"
-import { Eye, EyeOff } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { useRouter } from "next/navigation";
 
 export default function SignUp() {
-  const [showPassword, setShowPassword] = useState(false)
+  
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const router = useRouter();
+
+  const handleSignUp = async () => {
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/addUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to create account");
+      }
+
+      alert("Account created successfully!");
+      router.push("/user/login"); // Redirect to login page
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Card className="mx-auto w-full max-w-md">
       <CardHeader className="space-y-1 text-center">
         <CardTitle className="text-2xl">Create an account</CardTitle>
-        <CardDescription>Sign up with your Apple or Google account</CardDescription>
+        <CardDescription>
+          Sign up with your Apple or Google account
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-4">
           <Button variant="outline" className="w-full">
-            <svg className="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="mr-2 h-4 w-4"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879V14.89h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.989C18.343 21.129 22 16.99 22 12c0-5.523-4.477-10-10-10z" />
             </svg>
             Sign up with Apple
@@ -53,28 +101,50 @@ export default function SignUp() {
             <Separator />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with
+            </span>
           </div>
         </div>
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">First name</Label>
-              <Input id="firstName" placeholder="John" required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Last name</Label>
-              <Input id="lastName" placeholder="Doe" required />
-            </div>
+          {/* -----------------USERNAME----------------- */}
+          <div className="space-y-2">
+            <Label htmlFor="username">Enter Username</Label>
+            <Input
+              id="username"
+              placeholder="username"
+              required
+              onChange={(e) =>
+                setFormData({ ...formData, username: e.target.value })
+              }
+            />
           </div>
+          {/* -----------------EMAIL----------------- */}
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" placeholder="m@example.com" type="email" required />
+            <Input
+              id="email"
+              placeholder="xyz@example.com"
+              type="email"
+              required
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+            />
           </div>
+          {/* -----------------PASSWORD----------------- */}
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <div className="relative">
-              <Input id="password" type={showPassword ? "text" : "password"} required />
+              <Input
+                id="password"
+                placeholder="********"
+                type={showPassword ? "text" : "password"}
+                required
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
+              />
               <Button
                 type="button"
                 variant="ghost"
@@ -82,32 +152,52 @@ export default function SignUp() {
                 className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+                <span className="sr-only">
+                  {showPassword ? "Hide password" : "Show password"}
+                </span>
               </Button>
             </div>
           </div>
-          <Button className="w-full bg-purple-600 hover:bg-purple-700">Create account</Button>
+          <Button
+            className="w-full bg-purple-600 hover:bg-purple-700"
+            onClick={handleSignUp}
+            disabled={loading}
+          >
+            Create account
+          </Button>
         </div>
         <div className="text-center text-sm">
           Already have an account?{" "}
-          <Link href="login" className="text-purple-600 hover:underline dark:text-purple-400">
+          <Link
+            href="login"
+            className="text-purple-600 hover:underline dark:text-purple-400"
+          >
             Login
           </Link>
         </div>
         <div className="text-center text-xs text-muted-foreground">
           By clicking continue, you agree to our{" "}
-          <Link href="/terms" className="underline underline-offset-4 hover:text-primary">
+          <Link
+            href="/terms"
+            className="underline underline-offset-4 hover:text-primary"
+          >
             Terms of Service
           </Link>{" "}
           and{" "}
-          <Link href="/privacy" className="underline underline-offset-4 hover:text-primary">
+          <Link
+            href="/privacy"
+            className="underline underline-offset-4 hover:text-primary"
+          >
             Privacy Policy
           </Link>
           .
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
-

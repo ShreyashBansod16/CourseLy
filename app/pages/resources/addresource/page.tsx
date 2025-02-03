@@ -69,7 +69,7 @@ export default function AddResource() {
       if (response.ok) {
         console.log(response)
         const data = await response.json();
-        console.log("Resource added:", data);
+        // console.log("Resource added:", data);
         router.push("/pages/resources/allresource"); // Navigate to resources page
       } else {
         setError("Failed to add resource");

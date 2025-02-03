@@ -34,7 +34,7 @@ export default function Navbar() {
           <Link href="/">Home</Link>
           <Link href="/pages/courses/allcourses">Courses</Link>
           <Link href="/pages/resources/allresource">Resources</Link>
-          <Link href="/contact">Contact</Link>
+          <Link href="/pages/contact">Contact</Link>
 
           {!loggedIn ? (
             <div className="flex items-center gap-4">

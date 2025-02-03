@@ -21,7 +21,7 @@ export default function ContactUs() {
     // Simulating an API call
     try {
       console.log('fetch started');
-      const rawResponse = await fetch('http://localhost:3000/api/send', {
+      const rawResponse = await fetch('/api/send', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
