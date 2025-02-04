@@ -1,14 +1,9 @@
 import { NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import {supabase} from '@/lib/db'
 
 export async function POST(req: NextRequest) {
   const { title, description, tags, pdfUrl } = await req.json();
 
-  // Create a Supabase client with the user's token
-  const supabase = createClient(
-    `${process.env.NEXT_PUBLIC_SUPABASE_URL}`,
-    `${process.env.NEXT_PUBLIC_SUPABASE_KEY}`
-  );
 
   const { data, error } = await supabase
     .from('resources')
