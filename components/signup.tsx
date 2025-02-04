@@ -16,7 +16,6 @@ import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 
 export default function SignUp() {
-  
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
@@ -33,7 +32,7 @@ export default function SignUp() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/addUser", {
+      const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -42,11 +41,13 @@ export default function SignUp() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to create account");
+        alert(data.error || "Failed to create account");
       }
 
-      alert("Account created successfully!");
-      router.push("/user/login"); // Redirect to login page
+      if (res.ok) {
+        alert("Account created successfully!");
+        router.push("/user/login");
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {

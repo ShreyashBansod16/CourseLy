@@ -4,7 +4,7 @@ import { createContext, useContext, useState } from "react";
 const UserContext = createContext<any>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const loggedIn = true;
+  const loggedIn = false;
   const [name, setName] = useState<string | null>("user");
 
   return (

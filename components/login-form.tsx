@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import Link from "next/link"
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,12 +14,34 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { signIn } from "next-auth/react"; 
+import { useRouter } from "next/navigation";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState(""); 
+  const [password, setPassword] = useState(""); 
+  const [error, setError] = useState(""); 
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const result = await signIn("credentials", {
+      redirect: false, 
+      email,
+      password,
+    });
+
+    if (result?.error) {
+      setError("Invalid email or password"); 
+    } else {
+      // router.push("/"); 
+    }
+  };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -31,7 +53,7 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleSubmit}>
             <div className="grid gap-6">
               <div className="flex flex-col gap-4">
                 <Button variant="outline" className="w-full">
@@ -65,6 +87,8 @@ export function LoginForm({
                     id="email"
                     type="email"
                     placeholder="m@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
@@ -74,6 +98,8 @@ export function LoginForm({
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       required
                     />
                     <Button
@@ -83,17 +109,14 @@ export function LoginForm({
                       className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7"
                       onClick={() => setShowPassword(!showPassword)}
                     >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       <span className="sr-only">
                         {showPassword ? "Hide password" : "Show password"}
                       </span>
                     </Button>
                   </div>
                 </div>
+                {error && <p className="text-red-500 text-center">{error}</p>} 
                 <Button type="submit" className="w-full">
                   Login
                 </Button>
@@ -108,9 +131,8 @@ export function LoginForm({
           </form>
         </CardContent>
       </Card>
-      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary  ">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary">
+        By clicking continue, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
       </div>
     </div>
   );

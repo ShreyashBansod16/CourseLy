@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "../../../supabaseClient"; // Import your Supabase client
+import { supabase } from '@/lib/db';
 
 export default function AddResource() {
   const [title, setTitle] = useState("");
@@ -14,6 +14,7 @@ export default function AddResource() {
 
   // Function to upload PDF to Supabase
   const uploadPdfToSupabase = async (file: File) => {
+    
     const { data, error } = await supabase.storage
       .from("pdfs") // Bucket name
       .upload(`${file.name}`, file, {
