@@ -1,22 +1,27 @@
 'use client'
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { ModeToggle } from "./ToggleTheme";
+import { useUser } from "@/app/context/UserContext";
 
 export default function Navbar() {
-  const loggedIn = false;
+  const { loggedIn , name , setName } = useUser();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  useEffect(() => {
+    setName("Abusha");
+  }, [])
+  
 
   return (
     <nav className="bg-gray-600 text-white shadow-md">
       <div className="flex items-center justify-between p-4">
         {/* Navbar Logo */}
         <div className="text-2xl font-bold">
-          <Link href="/">Vi-Dash</Link>
+          <Link href="/">CoreDash-{name}</Link>
         </div>
 
         

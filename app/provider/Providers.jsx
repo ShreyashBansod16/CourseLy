@@ -1,6 +1,7 @@
-'use client'
+"use client";
 import { ThemeProvider } from "next-themes";
 import { useEffect, useState } from "react";
+import { UserProvider } from "../context/UserContext";
 
 export default function Providers({ children }) {
   const [mounted, setMounted] = useState(false);
@@ -12,7 +13,7 @@ export default function Providers({ children }) {
     return (
       <html lang="en">
         <body>
-          {children}
+          <UserProvider>{children}</UserProvider>
         </body>
       </html>
     );
@@ -24,7 +25,7 @@ export default function Providers({ children }) {
       enableSystem={true}
       disableTransitionOnChange
     >
-      {children}
+      <UserProvider>{children}</UserProvider>
     </ThemeProvider>
   );
 }

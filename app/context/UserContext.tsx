@@ -1,52 +1,19 @@
-"use client"; // Mark this as a Client Component
+"use client";
+import { createContext, useContext, useState } from "react";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+const UserContext = createContext<any>(undefined);
 
-type User = {
-  id: string;
-  name: string;
-  email: string;
-};
-
-type UserContextType = {
-  user: User | null;
-  loading: boolean;
-};
-
-const UserContext = createContext<UserContextType | undefined>(undefined);
-
-export const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // Simulate fetching user data
-  useEffect(() => {
-    const fetchUser = async () => {
-      // Simulate an API call
-      setTimeout(() => {
-        setUser({
-          id: "123",
-          name: "John Doe",
-          email: "john@example.com",
-        });
-        setLoading(false);
-      }, 1000); // Simulate a 1-second delay
-    };
-
-    fetchUser();
-  }, []);
+export function UserProvider({ children }: { children: React.ReactNode }) {
+  const loggedIn = true;
+  const [name, setName] = useState<string | null>("user");
 
   return (
-    <UserContext.Provider value={{ user, loading }}>
+    <UserContext.Provider value={{ loggedIn, name, setName }}>
       {children}
     </UserContext.Provider>
   );
-};
+}
 
-export const useUser = () => {
-  const context = useContext(UserContext);
-  if (!context) {
-    throw new Error("useUser must be used within a UserProvider");
-  }
-  return context;
-};
+export function useUser() {
+  return useContext(UserContext);
+}
