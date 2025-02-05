@@ -1,7 +1,12 @@
+"use client";
 import Link from "next/link";
+import { useUser } from "./context/UserContext";
 
 export default function Home() {
-  const isAdmin = true;
+  const { userData, loading } = useUser();
+  const isAdmin = userData?.isAdmin;
+  console.log(userData);
+  if (loading) return <div>Loading...</div>;
 
   return isAdmin ? (
     <div className="flex flex-col items-center justify-center h-screen gap-4">

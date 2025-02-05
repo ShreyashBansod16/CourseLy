@@ -1,9 +1,10 @@
+import ResourcesList from '@/components/ownComponents/AllResource'
 import React from 'react'
 
 export default function page() {
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-        all resources will be displayed here
-    </div>
+    <>
+    <ResourcesList/>
+    </>
   )
 }

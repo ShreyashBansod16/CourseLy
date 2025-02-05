@@ -1,26 +1,28 @@
 "use client";
-import { CourseCard } from "@/components/course-card"
-
-const courses = [
-  {
-    id: 1,
-    imageUrl: "/placeholder.svg?height=200&width=300",
-    title: "Introduction to React",
-    description: "Learn the basics of React and build your first application.",
-  },
-  {
-    id: 2,
-    imageUrl: "/placeholder.svg?height=200&width=300",
-    title: "Advanced JavaScript",
-    description: "Deep dive into advanced JavaScript concepts and patterns.",
-  }
-]
+import { useCourses } from "@/app/context/CourseContext";
+import { CourseCard } from "@/components/course-card";
+import { useEffect, useState } from "react";
 
 export function CourseGrid() {
+  const { courses, loading, refreshCources } = useCourses();
+  const [Finalcourses, setFinalcourses] = useState<any>([]);
+  console.log(courses)
+
+  useEffect(() => {
+    setFinalcourses(courses);
+  }, [courses]);
+
+  if (loading)
+    return (
+      <p className="flex flex-col justify-center content-center text-center text-lg text-gray-600 dark:text-gray-300">
+        Loading courses...
+      </p>
+    );
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {courses.map((course) => (
+        {Finalcourses.map((course: any) => (
           <CourseCard
             key={course.id}
             imageUrl={course.imageUrl}
@@ -32,6 +34,5 @@ export function CourseGrid() {
         ))}
       </div>
     </div>
-  )
+  );
 }
-

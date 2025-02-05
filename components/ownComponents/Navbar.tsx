@@ -1,47 +1,44 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { ModeToggle } from "./ToggleTheme";
 import { useUser } from "@/app/context/UserContext";
 
 export default function Navbar() {
-  const { loggedIn , name , setName } = useUser();
+  const { userData, loading } = useUser();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-
-  useEffect(() => {
-    setName("Abusha");
-  }, [])
-  
 
   return (
     <nav className="bg-gray-600 text-white shadow-md">
       <div className="flex items-center justify-between p-4">
         {/* Navbar Logo */}
         <div className="text-2xl font-bold">
-          <Link href="/">CoreDash-{name}</Link>
+          <Link href="/">CoreDash-{userData?.name || "User"}</Link>
         </div>
 
-        
         <div className="md:hidden">
           <button
             className="text-white focus:outline-none"
             onClick={toggleMenu}
           >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMenuOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
           </button>
         </div>
 
-        
         <div className="hidden md:flex items-center gap-6 text-lg font-semibold">
           <Link href="/">Home</Link>
           <Link href="/pages/courses/allcourses">Courses</Link>
           <Link href="/pages/resources/allresource">Resources</Link>
           <Link href="/pages/contact">Contact</Link>
 
-          {!loggedIn ? (
+          {!(userData || false) ? (
             <div className="flex items-center gap-4">
               <ModeToggle />
               <Link href="/user/login">Login</Link>
@@ -68,11 +65,11 @@ export default function Navbar() {
             <Link href="/pages/resources/allresource" onClick={toggleMenu}>
               Resources
             </Link>
-            <Link href="/contact" onClick={toggleMenu}>
+            <Link href="/pages/contact" onClick={toggleMenu}>
               Contact
             </Link>
 
-            {!loggedIn ? (
+            {!(userData || false) ? (
               <div className="flex flex-col items-center gap-4">
                 <ModeToggle />
                 <Link href="/user/login" onClick={toggleMenu}>

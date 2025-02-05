@@ -3,6 +3,8 @@ import { ThemeProvider } from "next-themes";
 import { useEffect, useState } from "react";
 import { UserProvider } from "../context/UserContext";
 import AuthProvider from "../context/AuthProvider";
+import { ResourceProvider } from "../context/ResourceContext";
+import { CourseProvider } from "../context/CourseContext";
 
 export default function Providers({ children }) {
   const [mounted, setMounted] = useState(false);
@@ -15,7 +17,11 @@ export default function Providers({ children }) {
       <html lang="en">
         <body>
           <AuthProvider>
-            <UserProvider>{children}</UserProvider>
+            <UserProvider>
+              <ResourceProvider>
+                <CourseProvider>{children}</CourseProvider>
+              </ResourceProvider>
+            </UserProvider>
           </AuthProvider>
         </body>
       </html>
@@ -29,7 +35,11 @@ export default function Providers({ children }) {
         enableSystem={true}
         disableTransitionOnChange
       >
-        <UserProvider>{children}</UserProvider>
+        <UserProvider>
+          <ResourceProvider>
+            <CourseProvider>{children}</CourseProvider>
+          </ResourceProvider>
+        </UserProvider>
       </ThemeProvider>
     </AuthProvider>
   );

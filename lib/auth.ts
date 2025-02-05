@@ -11,34 +11,40 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
+      // @ts-ignore
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
-      
-        try {      
+
+        try {
           const { data, error } = await supabase
             .from("users")
-            .select("id, username, email, password, isregistered, isadmin, created_at")
+            .select(
+              "id, username, email, password, isregistered, isadmin, created_at"
+            )
             .eq("email", credentials.email)
             .single();
-      
+
           if (error) {
             throw new Error("Database error");
           }
-      
+
           if (!data) {
             throw new Error("User not found");
           }
-      
-          const isValid = await bcrypt.compare(credentials.password, data.password);
-      
+
+          const isValid = await bcrypt.compare(
+            credentials.password,
+            data.password
+          );
+
           if (!isValid) {
             throw new Error("Invalid password");
           }
-      
+
           console.log("✅ Password is correct");
-      
+
           return {
             id: data.id,
             name: data.username,
@@ -50,20 +56,25 @@ export const authOptions: NextAuthOptions = {
         } catch (error: any) {
           throw new Error(error.message);
         }
-      }
-      
+      },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.isAdmin = user.isAdmin;
+        token.isRegistered = user.isRegistered;
+        token.created_at = user.created_at;
       }
       return token;
     },
     async session({ session, token }) {
       if (token.id) {
-        session.user.id = token.id as string;
+        session.user.id = token.id;
+        session.user.isAdmin = token.isAdmin;
+        session.user.isRegistered = token.isRegistered;
+        session.user.created_at = token.created_at;
       }
       return session;
     },
@@ -74,7 +85,7 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, 
+    maxAge: 30 * 24 * 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
