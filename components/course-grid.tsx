@@ -25,7 +25,7 @@ export function CourseGrid() {
         {Finalcourses.map((course: any) => (
           <CourseCard
             key={course.id}
-            imageUrl={course.imageUrl}
+            imageUrl={course.thumbnail_link}
             title={course.title}
             description={course.description}
             onView={() => console.log(`View course: ${course.title}`)}

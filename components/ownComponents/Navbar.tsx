@@ -16,7 +16,7 @@ export default function Navbar() {
       <div className="flex items-center justify-between p-4">
         {/* Navbar Logo */}
         <div className="text-2xl font-bold">
-          <Link href="/">CoreDash-{userData?.name || "User"}</Link>
+          <Link href="/">CorseLy-{userData?.name.toUpperCase() || "User"}</Link>
         </div>
 
         <div className="md:hidden">
