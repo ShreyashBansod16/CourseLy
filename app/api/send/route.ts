@@ -6,7 +6,6 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req: NextRequest) {
   try {
-    console.log('data reached here')
     const body = await req.text();
     const bodyData = JSON.parse(body);
     const { data, error } = await resend.emails.send({

@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 export default function HomePage() {
   const { userData, loading } = useUser();
   const isAdmin = userData?.isAdmin;
-  console.log(userData);
   if (loading) return <div>Loading...</div>;
 
   return isAdmin ? (

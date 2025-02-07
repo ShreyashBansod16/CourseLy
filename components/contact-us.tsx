@@ -24,7 +24,6 @@ export default function ContactUs() {
       const userName = userData?.name;
       const userEmail = userData?.email;
       const userId = userData?.id; 
-      console.log('fetch started');
       const rawResponse = await fetch('/api/send', {
         method: 'POST',
         headers: {

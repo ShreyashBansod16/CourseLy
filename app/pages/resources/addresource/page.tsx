@@ -43,13 +43,6 @@ export default function AddResource() {
       // Upload the PDF and get its public URL
       const pdfUrl = await uploadPdfToSupabase(pdf);
 
-      console.log("Sending request with:", {
-        title,
-        description,
-        tags,
-        pdfUrl,
-      });
-
       // Save resource data to your database
       const response = await fetch("/api/resources", {
         method: "POST",
@@ -68,9 +61,7 @@ export default function AddResource() {
       });
 
       if (response.ok) {
-        console.log(response)
         const data = await response.json();
-        // console.log("Resource added:", data);
         router.push("/pages/resources/allresource"); // Navigate to resources page
       } else {
         setError("Failed to add resource");

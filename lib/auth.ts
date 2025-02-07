@@ -43,8 +43,6 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Invalid password");
           }
 
-          console.log("✅ Password is correct");
-
           return {
             id: data.id,
             name: data.username,
