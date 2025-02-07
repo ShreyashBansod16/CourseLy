@@ -1,11 +1,7 @@
 import { CourseGrid } from "@/components/course-grid";
 
 function page() {
-  return (
-    <>
-      <CourseGrid />
-    </>
-  );
+  return <CourseGrid />;
 }
 
 export default page;

@@ -5,7 +5,6 @@ export default function layout({
 }>) {
   return (
     <>
-      <nav className="flex flex-row justify-center pt-5">Search Bar</nav>
       {children}
     </>
   );

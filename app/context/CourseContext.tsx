@@ -21,6 +21,9 @@ interface ResourceContextType {
   courses: Course[]; 
   loading: boolean;
   refreshCources: () => Promise<void>;
+  Finalcourses: any;
+  setFinalcourses: any;
+
 }
 
 // Create Context with Default Values
@@ -28,12 +31,15 @@ const CourseContext = createContext<ResourceContextType>({
   courses: [],
   loading: true,
   refreshCources: async () => {},
+  Finalcourses: [],
+  setFinalcourses: () => {},
 });
 
 // Provider Component
 export const CourseProvider = ({ children }: { children: ReactNode }) => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [Finalcourses, setFinalcourses] = useState<any>([]);
 
   // Fetch courses from Supabase
   const fetchCourses = async () => {
@@ -45,7 +51,7 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setCourses(data || []);
     }
-
+    setFinalcourses(data || []);
     setLoading(false);
   };
 
@@ -60,7 +66,7 @@ export const CourseProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <CourseContext.Provider value={{ courses, loading, refreshCources }}>
+    <CourseContext.Provider value={{ courses, loading, refreshCources, Finalcourses, setFinalcourses }}>
       {children}
     </CourseContext.Provider>
   );

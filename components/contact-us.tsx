@@ -7,19 +7,23 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
+import { useUser } from "@/app/context/UserContext"
 
 export default function ContactUs() {
   const [message, setMessage] = useState("")
   const [response, setResponse] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const { userData } = useUser();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setResponse(null);
-  
-    // Simulating an API call
+
     try {
+      const userName = userData?.name;
+      const userEmail = userData?.email;
+      const userId = userData?.id; 
       console.log('fetch started');
       const rawResponse = await fetch('/api/send', {
         method: 'POST',
@@ -28,8 +32,9 @@ export default function ContactUs() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: 'abusha',
-          email: "abu123@gmail.com",
+          username: userName,
+          id: userId,
+          email: userEmail,
           message: message,
         }),
       });
@@ -41,12 +46,12 @@ export default function ContactUs() {
       const content = await rawResponse.json();
   
       if (content) {
-        console.log(content);
+        // get mail id here
+        // console.log(content);
         setMessage("");
         setResponse("Thank you for your message. Our team will get back to you soon.");
       }
     } catch (error) {
-      console.error('Error during API call:', error); 
       setResponse("An error occurred. Please try again later.");
     } finally {
       setIsLoading(false);

@@ -9,6 +9,7 @@ export default function Navbar() {
   const { userData, loading } = useUser();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  console.log(userData);
 
   return (
     <nav className="bg-gray-600 text-white shadow-md">

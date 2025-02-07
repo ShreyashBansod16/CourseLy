@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 import Image from "next/image"
 import { Card, CardContent } from "@/components/ui/card"
 import { AspectRatio } from "@/components/ui/aspect-ratio"
@@ -16,7 +16,7 @@ export function CourseCard({ imageUrl, title, description, onView, onBuy }: Cour
   return (
     <Card className="flex flex-col sm:flex-row overflow-hidden">
       <div className="w-full sm:w-1/3">
-        <AspectRatio ratio={16 / 9}>
+        <AspectRatio ratio={4 / 3}>
           <Image src={imageUrl || "/placeholder.svg"} alt={title} fill className="object-cover"  />
         </AspectRatio>
       </div>

@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
       // @ts-expect-error
       react: EmailTemplate({
         user: bodyData.username,
+        userId: bodyData.id,
         userEmail: bodyData.email,
         message: `${bodyData.message}`,
       }),
