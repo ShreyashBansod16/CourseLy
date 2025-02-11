@@ -1,7 +1,13 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from '@/lib/db';
+import { supabase } from "@/lib/db";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
 
 export default function AddResource() {
   const [title, setTitle] = useState("");
@@ -14,7 +20,6 @@ export default function AddResource() {
 
   // Function to upload PDF to Supabase
   const uploadPdfToSupabase = async (file: File) => {
-    
     const { data, error } = await supabase.storage
       .from("pdfs") // Bucket name
       .upload(`${file.name}`, file, {
@@ -46,7 +51,7 @@ export default function AddResource() {
       // Save resource data to your database
       const response = await fetch("/api/resources", {
         method: "POST",
-        //@ts-ignore
+        // @ts-ignore
         headers: {
           "Content-Type": "application/json",
           apikey: process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
@@ -75,60 +80,83 @@ export default function AddResource() {
   };
 
   return (
-    <div className="pt-10 p-4">
-      <div className="max-w-full max-h-[500px] lg:max-w-[1200px] lg:max-h-[800px] mx-auto w-full h-auto rounded-lg border-2 border-gray-300 dark:border-gray-700 p-4 pt-6 lg:p-6 lg:pt-8">
-
-        <h1 className="text-2xl font-bold mb-6">Add Resource</h1>
-        <div className="space-y-4">
-          <input
-            type="text"
-            placeholder="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <textarea
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            rows={4}
-          />
-          <input
-            type="file"
-            onChange={(e) => setPdf(e.target.files?.[0] || null)}
-            accept="application/pdf"
-            className="w-full file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-          />
-          <input
-            type="text"
-            placeholder="Tags"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={addResource}
-              disabled={loading}
-              className={`px-4 py-2 rounded-lg text-white ${
-                loading
-                  ? "bg-blue-300 cursor-not-allowed"
-                  : "bg-blue-500 hover:bg-blue-600"
-              }`}
-            >
-              {loading ? "Loading..." : "Add Resource"}
-            </button>
-            <button
-              onClick={() => router.push("/pages/resources/allresource")}
-              className="px-4 py-2 rounded-lg text-gray-700 bg-gray-200 hover:bg-gray-300"
-            >
-              Cancel
-            </button>
+    <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-4">
+      <Card className="w-full max-w-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-foreground">Add Resource</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="title" className="text-foreground">
+              Title
+            </Label>
+            <Input
+              id="title"
+              type="text"
+              placeholder="Enter title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full"
+            />
           </div>
-          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-        </div>
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-foreground">
+              Description
+            </Label>
+            <Textarea
+              id="description"
+              placeholder="Enter description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full min-h-[100px]"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="pdf" className="text-foreground">
+              Upload PDF
+            </Label>
+            <Input
+              id="pdf"
+              type="file"
+              onChange={(e) => setPdf(e.target.files?.[0] || null)}
+              accept="application/pdf"
+              className="w-full"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="tags" className="text-foreground">
+              Tags
+            </Label>
+            <Input
+              id="tags"
+              type="text"
+              placeholder="Enter tags (comma-separated)"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              className="w-full"
+            />
+          </div>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+        </CardContent>
+        <CardFooter className="flex justify-end gap-2">
+          <Button
+            variant="outline"
+            onClick={() => router.push("/pages/resources/allresource")}
+          >
+            Cancel
+          </Button>
+          <Button onClick={addResource} disabled={loading}>
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Adding...
+              </>
+            ) : (
+              "Add Resource"
+            )}
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

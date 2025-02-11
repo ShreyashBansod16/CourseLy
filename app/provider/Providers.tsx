@@ -6,7 +6,7 @@ import AuthProvider from "../context/AuthProvider";
 import { ResourceProvider } from "../context/ResourceContext";
 import { CourseProvider } from "../context/CourseContext";
 
-export default function Providers({ children }) {
+export default function Providers({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);

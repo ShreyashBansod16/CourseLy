@@ -11,16 +11,17 @@ export default function Navbar() {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   return (
-    <nav className="bg-gray-600 text-white shadow-md">
-      <div className="flex items-center justify-between p-4">
+    <nav className="bg-background border-b shadow-sm">
+      <div className="container mx-auto flex items-center justify-between p-4">
         {/* Navbar Logo */}
-        <div className="text-2xl font-bold">
-          <Link href="/">CorseLy-{userData?.name.toUpperCase() || "User"}</Link>
+        <div className="text-xl font-bold text-foreground">
+          <Link href="/">CourseLy-{userData?.name.toUpperCase() || "User"}</Link>
         </div>
 
+        {/* Mobile Menu Toggle */}
         <div className="md:hidden">
           <button
-            className="text-white focus:outline-none"
+            className="text-foreground focus:outline-none"
             onClick={toggleMenu}
           >
             {isMenuOpen ? (
@@ -31,57 +32,73 @@ export default function Navbar() {
           </button>
         </div>
 
-        <div className="hidden md:flex items-center gap-6 text-lg font-semibold">
-          <Link href="/">Home</Link>
-          <Link href="/pages/courses/allcourses">Courses</Link>
-          <Link href="/pages/resources/allresource">Resources</Link>
-          <Link href="/pages/contact">Contact</Link>
+        {/* Desktop Menu */}
+        <div className="hidden md:flex items-center gap-8 text-lg font-medium">
+          <Link href="/" className="text-foreground hover:text-primary transition-colors">
+            Home
+          </Link>
+          <Link href="/pages/courses/allcourses" className="text-foreground hover:text-primary transition-colors">
+            Courses
+          </Link>
+          <Link href="/pages/resources/allresource" className="text-foreground hover:text-primary transition-colors">
+            Resources
+          </Link>
+          <Link href="/pages/contact" className="text-foreground hover:text-primary transition-colors">
+            Contact
+          </Link>
 
           {!(userData || false) ? (
             <div className="flex items-center gap-4">
               <ModeToggle />
-              <Link href="/user/login">Login</Link>
-              <Link href="/user/signup">SignUp</Link>
+              <Link href="/user/login" className="text-foreground hover:text-primary transition-colors">
+                Login
+              </Link>
+              <Link href="/user/signup" className="text-foreground hover:text-primary transition-colors">
+                SignUp
+              </Link>
             </div>
           ) : (
             <div className="flex items-center gap-4">
               <ModeToggle />
-              <Link href="/api/auth/logout">Logout</Link>
+              <Link href="/api/auth/logout" className="text-foreground hover:text-primary transition-colors">
+                Logout
+              </Link>
             </div>
           )}
         </div>
       </div>
 
+      {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-gray-700 text-white">
-          <div className="flex flex-col items-center gap-4 py-4 text-lg font-semibold">
-            <Link href="/" onClick={toggleMenu}>
+        <div className="md:hidden bg-background border-t">
+          <div className="flex flex-col items-center gap-4 py-4 text-lg font-medium">
+            <Link href="/" onClick={toggleMenu} className="text-foreground hover:text-primary transition-colors">
               Home
             </Link>
-            <Link href="/pages/courses/allcourses" onClick={toggleMenu}>
+            <Link href="/pages/courses/allcourses" onClick={toggleMenu} className="text-foreground hover:text-primary transition-colors">
               Courses
             </Link>
-            <Link href="/pages/resources/allresource" onClick={toggleMenu}>
+            <Link href="/pages/resources/allresource" onClick={toggleMenu} className="text-foreground hover:text-primary transition-colors">
               Resources
             </Link>
-            <Link href="/pages/contact" onClick={toggleMenu}>
+            <Link href="/pages/contact" onClick={toggleMenu} className="text-foreground hover:text-primary transition-colors">
               Contact
             </Link>
 
             {!(userData || false) ? (
               <div className="flex flex-col items-center gap-4">
                 <ModeToggle />
-                <Link href="/user/login" onClick={toggleMenu}>
+                <Link href="/user/login" onClick={toggleMenu} className="text-foreground hover:text-primary transition-colors">
                   Login
                 </Link>
-                <Link href="/user/signup" onClick={toggleMenu}>
+                <Link href="/user/signup" onClick={toggleMenu} className="text-foreground hover:text-primary transition-colors">
                   SignUp
                 </Link>
               </div>
             ) : (
               <div className="flex flex-col items-center gap-4">
                 <ModeToggle />
-                <Link href="/api/auth/logout" onClick={toggleMenu}>
+                <Link href="/api/auth/logout" onClick={toggleMenu} className="text-foreground hover:text-primary transition-colors">
                   Logout
                 </Link>
               </div>
