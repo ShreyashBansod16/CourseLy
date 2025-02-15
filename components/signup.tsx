@@ -60,11 +60,11 @@ export default function SignUp() {
       <CardHeader className="space-y-1 text-center">
         <CardTitle className="text-2xl">Create an account</CardTitle>
         <CardDescription>
-          Sign up with your Apple or Google account
+          Create account using email and password
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="space-y-4">
+        {/* <div className="space-y-4">
           <Button variant="outline" className="w-full">
             <svg
               className="mr-2 h-4 w-4"
@@ -106,7 +106,7 @@ export default function SignUp() {
               Or continue with
             </span>
           </div>
-        </div>
+        </div> */}
         <div className="space-y-4">
           {/* -----------------USERNAME----------------- */}
           <div className="space-y-2">
