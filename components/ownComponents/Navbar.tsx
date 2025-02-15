@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { ModeToggle } from "./ToggleTheme";
 import { useUser } from "@/app/context/UserContext";
+import { Button } from "../ui/button";
+import { signOut } from "next-auth/react";
 
 export default function Navbar() {
   const { userData, loading } = useUser();
@@ -60,9 +62,12 @@ export default function Navbar() {
           ) : (
             <div className="flex items-center gap-4">
               <ModeToggle />
-              <Link href="/api/auth/logout" className="text-foreground hover:text-primary transition-colors">
-                Logout
-              </Link>
+              {/* <Link href="/" className="text-foreground hover:text-primary transition-colors"> */}
+              <Button onClick={()=>signOut()} className="text-foreground hover:text-primary transition-colors">
+              Logout
+              </Button>
+                
+              {/* </Link> */}
             </div>
           )}
         </div>
@@ -98,9 +103,12 @@ export default function Navbar() {
             ) : (
               <div className="flex flex-col items-center gap-4">
                 <ModeToggle />
-                <Link href="/api/auth/logout" onClick={toggleMenu} className="text-foreground hover:text-primary transition-colors">
+                {/* <Link href="/api/auth/logout" onClick={toggleMenu} className="text-foreground hover:text-primary transition-colors">
                   Logout
-                </Link>
+                </Link> */}
+                <Button onClick={()=>signOut()} className="text-foreground hover:text-primary transition-colors">
+                  Logout
+                </Button>
               </div>
             )}
           </div>
