@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CSI-NextJs
 
-## Getting Started
+CSI-NextJs is a web platform designed to provide users with access to a variety of courses and resources. 
+Users can upload their own content and connect with content owners for any queries.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Browse Courses and Resources**: Explore a wide range of educational materials.
+- **Upload Content**: Share your own courses and resources with the community.
+- **Contact Owners**: Reach out to content creators for questions or collaborations.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Technology Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Framework**: Next.js with TypeScript
+- **Backend**: Supabase
+- **Authentication**: NextAuth
+- **Email Service**: Resend
+- **UI Components**: shadcn
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Installation
 
-## Learn More
+To set up the project locally, follow these steps:
 
-To learn more about Next.js, take a look at the following resources:
+1. **Clone the Repository**:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   git clone https://github.com/Abusha-Ansari/CSI-NextJs.git
+   cd CSI-NextJs
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **Install Dependencies**:
 
-## Deploy on Vercel
+   ```bash
+   npm install
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **Set Up Environment Variables**:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   Create a `.env.local` file in the root directory and add the following variables:
+
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   NEXTAUTH_URL=your_nextauth_url
+   NEXTAUTH_SECRET=your_nextauth_secret
+   RESEND_API_KEY=your_resend_api_key
+   ```
+
+   Replace `your_*` placeholders with your actual Supabase, NextAuth, and Resend credentials.
+
+4. **Run the Development Server**:
+
+   ```bash
+   npm run dev
+   ```
+
+   The application should now be running on `http://localhost:3000`.
+
+## Usage
+
+- **Viewing Content**: Navigate through the platform to browse available courses and resources.
+- **Uploading Content**: Sign in to upload your own materials.
+- **Contacting Owners**: Use the provided contact options to reach out to content owners.
+
+## Contributing
+
+Contributions are welcome! To contribute:
+
+1. Fork the repository.
+2. Create a new branch: `git checkout -b feature-name`.
+3. Make your changes and commit them: `git commit -m 'Add new feature'`.
+4. Push to the branch: `git push origin feature-name`.
+5. Submit a pull request.
+
+## License
+
+This project is licensed under the MIT License.
+
+---
+
+For more information or assistance, please refer to the project's repository or contact the maintainers.
