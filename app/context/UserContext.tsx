@@ -1,24 +1,3 @@
-// "use client";
-// import { createContext, useContext, useState } from "react";
-
-// const UserContext = createContext<any>(undefined);
-
-// export function UserProvider({ children }: { children: React.ReactNode }) {
-//   const loggedIn = true;
-//   const [name, setName] = useState<string | null>("user");
-
-//   return (
-//     <UserContext.Provider value={{ loggedIn, name, setName }}>
-//       {children}
-//     </UserContext.Provider>
-//   );
-// }
-
-// export function useUser() {
-//   return useContext(UserContext);
-// }
-
-
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
@@ -63,7 +42,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         id: session.user.id,
         name: session.user.name,
         email: session.user.email,
+        // @ts-ignore
         isAdmin: session.user.isAdmin,
+        // @ts-ignore
         isRegistered: session.user.isRegistered,
         created_at: session.user.created_at,
       });
