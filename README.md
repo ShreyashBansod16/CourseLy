@@ -1,7 +1,9 @@
 # CourseLy
 
 CourseLy is a web platform designed to provide users with access to a variety of courses and resources. 
-Users can upload their own content and connect with content owners for any queries.
+Users can upload their own content, view others content and connect with content owners for any queries.
+
+Web-Link: [CourseLy](https://course-ly.vercel.app/)
 
 ## Features
 
@@ -24,8 +26,8 @@ To set up the project locally, follow these steps:
 1. **Clone the Repository**:
 
    ```bash
-   git clone https://github.com/Abusha-Ansari/CSI-NextJs.git
-   cd CSI-NextJs
+   git clone https://github.com/Abusha-Ansari/CourseLy.git
+   cd CourseLy
    ```
 
 2. **Install Dependencies**:
@@ -36,14 +38,18 @@ To set up the project locally, follow these steps:
 
 3. **Set Up Environment Variables**:
 
-   Create a `.env.local` file in the root directory and add the following variables:
+   Create a `.env` file in the root directory and add the following variables:
 
    ```env
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   NEXTAUTH_URL=your_nextauth_url
-   NEXTAUTH_SECRET=your_nextauth_secret
-   RESEND_API_KEY=your_resend_api_key
+   NEXT_PUBLIC_BASE_URL=http://localhost:3000
+   RESEND_API_KEY=your_env_variable
+   NEXT_PUBLIC_SUPABASE_URL=your_env_variable
+   NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY=your_env_variable
+   NEXTAUTH_SECRET=your_env_variable
+   NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_env_variable
+   GOOGLE_CLIENT_ID=your_env_variable
+   GOOGLE_CLIENT_SECRET=your_env_variable
+   NEXT_PUBLIC_CLOUDINARY_URL=your_env_variable
    ```
 
    Replace `your_*` placeholders with your actual Supabase, NextAuth, and Resend credentials.

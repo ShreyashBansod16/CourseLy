@@ -31,7 +31,7 @@ export default function HomeSections() {
               className="flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm text-primary"
             >
               <Sparkles className="h-4 w-4" />
-              Trending Learning Platform 2024
+              Trending Learning Platform 2025
             </motion.div>
           </div>
           
@@ -204,7 +204,7 @@ export default function HomeSections() {
             <div className="grid gap-8 md:grid-cols-2">
               <div>
                 <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                  What Our Students Say
+                  What Our Users Say
                 </h2>
                 <p className="mt-4 text-muted-foreground">
                   Join thousands of satisfied learners who transformed their careers
@@ -214,12 +214,12 @@ export default function HomeSections() {
                 {[
                   {
                     text: "The courses here completely changed my career trajectory. Best investment ever!",
-                    author: "Sarah Johnson",
+                    author: "Abusha Ansari",
                     role: "Senior Developer"
                   },
                   {
                     text: "Incredible quality of content and support. 10/10 recommended!",
-                    author: "Mike Chen",
+                    author: "Daksh Mehta",
                     role: "UX Designer"
                   }
                 ].map((testimonial, index) => (

@@ -62,12 +62,9 @@ export default function Navbar() {
           ) : (
             <div className="flex items-center gap-4">
               <ModeToggle />
-              {/* <Link href="/" className="text-foreground hover:text-primary transition-colors"> */}
               <Button onClick={()=>signOut()} className="text-foreground hover:text-primary transition-colors">
               Logout
               </Button>
-                
-              {/* </Link> */}
             </div>
           )}
         </div>
@@ -103,10 +100,7 @@ export default function Navbar() {
             ) : (
               <div className="flex flex-col items-center gap-4">
                 <ModeToggle />
-                {/* <Link href="/api/auth/logout" onClick={toggleMenu} className="text-foreground hover:text-primary transition-colors">
-                  Logout
-                </Link> */}
-                <Button onClick={()=>signOut()} className="text-foreground hover:text-primary transition-colors">
+                <Button onClick={()=>{signOut(),toggleMenu()}} className="text-foreground hover:text-primary transition-colors">
                   Logout
                 </Button>
               </div>
