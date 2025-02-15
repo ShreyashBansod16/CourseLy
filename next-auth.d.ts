@@ -6,25 +6,24 @@ declare module "next-auth" {
       id: string;
       name: string;
       email: string;
-      isAdmin: boolean;
-      isRegistered: boolean;
+      isAdmin?: boolean;
       created_at: string;
+      isRegistered?: boolean;
     } & DefaultSession["user"];
   }
 
   interface User extends DefaultUser {
     id: string;
-    isAdmin: boolean;
-    isRegistered: boolean;
-    created_at: string;
+    isAdmin?: boolean;
+    created_at?: string;
+    isRegistered?: boolean;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
     id: string;
-    isAdmin: boolean;
-    isRegistered: boolean;
-    created_at: string;
+    isAdmin?: boolean;
+    created_at?: string;
   }
 }

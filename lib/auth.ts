@@ -1,10 +1,15 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import { supabase } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!
+    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -58,6 +63,35 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        // Check if the user already exists
+        const { data: existingUser, error } = await supabase
+          .from("users")
+          .select("id, email")
+          .eq("email", user.email!)
+          .single();
+
+        if (!existingUser) {
+          // If user does not exist, create a new entry
+          const { data, error } = await supabase
+            .from("users")
+            .insert([{ email: user.email, username: user.name, isadmin: false }])
+            .select()
+            .single();
+
+          if (error) {
+            console.error("Error creating user:", error);
+            return false;
+          }
+
+          user.id = data.id;
+        } else {
+          user.id = existingUser.id;
+        }
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
@@ -71,7 +105,9 @@ export const authOptions: NextAuthOptions = {
       if (token.id) {
         session.user.id = token.id;
         session.user.isAdmin = token.isAdmin;
+        // @ts-ignore
         session.user.isRegistered = token.isRegistered;
+        // @ts-ignore
         session.user.created_at = token.created_at;
       }
       return session;
