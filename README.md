@@ -1,6 +1,6 @@
 # CSI-NextJs
 
-CSI-NextJs is a web platform designed to provide users with access to a variety of courses and resources. 
+CourseLy is a web platform designed to provide users with access to a variety of courses and resources. 
 Users can upload their own content and connect with content owners for any queries.
 
 ## Features
