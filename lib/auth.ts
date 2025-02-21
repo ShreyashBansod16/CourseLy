@@ -76,9 +76,12 @@ export const authOptions: NextAuthOptions = {
           // If user does not exist, create a new entry
           const { data, error } = await supabase
             .from("users")
-            .insert([{ email: user.email, username: user.name, isadmin: false }])
+            .insert([{ email: user.email, username: user.name, isadmin: false, password: Math.random().toString(36).substring(7) }])
             .select()
             .single();
+          // if(data) {
+          //   console.log("User created:", data);
+          // }
 
           if (error) {
             console.error("Error creating user:", error);
