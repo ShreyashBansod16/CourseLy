@@ -31,7 +31,7 @@ export function CourseCard({
   const [shareOpen, setShareOpen] = useState(false);
   const router = useRouter();
   const pathName = usePathname();
-  const fullUrl = `${url}${pathName}`;
+  const fullUrl = `${url?.replace(/\/$/, "")}${pathName}`;
 
   // Copy URL to clipboard
   const copyToClipboard = async () => {
