@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { BookOpen, Code, Paintbrush, Rocket, Sparkles, Award, Clock, Users } from "lucide-react";
+import { BookOpen, Code, Paintbrush, Rocket, Sparkles, Award, Clock, Users, Pointer } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function HomeSections() {
   const featuredCourses = [
@@ -12,7 +13,7 @@ export default function HomeSections() {
     { title: "UI/UX Design", lessons: 35, icon: <Paintbrush className="h-6 w-6" />, students: "890" },
     { title: "Career Boost", lessons: 28, icon: <Rocket className="h-6 w-6" />, students: "2.1k" },
   ];
-
+  const router = useRouter();
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Animated Hero Section */}
@@ -65,6 +66,7 @@ export default function HomeSections() {
             <Button 
               size="lg" 
               className="w-full sm:w-auto relative overflow-hidden group"
+              onClick={()=>router.push('/pages/courses/allcourses')}
             >
               <span className="relative z-10">Start Learning Free</span>
               <div className="absolute inset-0 bg-gradient-to-r from-primary to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -72,8 +74,9 @@ export default function HomeSections() {
             
             <div className="relative w-full sm:w-96">
               <Input
-                type="search"
-                placeholder="Search courses..."
+                type="search" 
+                readOnly
+                placeholder="View all courses..."
                 className="h-12 w-full pl-12 pr-4 backdrop-blur-sm bg-background/50"
               />
               <BookOpen className="absolute left-4 top-3 h-6 w-6 text-muted-foreground" />

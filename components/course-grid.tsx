@@ -56,8 +56,9 @@ export function CourseGrid() {
               imageUrl={course.thumbnail_link}
               title={course.title}
               description={course.description}
-              onView={() => console.log(`View course: ${course.id}`)}
-              onBuy={() => console.log(`Buy course: ${course.title}`)}
+              detailed_description={course.detailed_description}
+              Link={course.video_link}
+              id={course.id}
             />
           ))
         ) : (
