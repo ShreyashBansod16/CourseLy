@@ -39,13 +39,13 @@ export default function Navbar() {
           <Link href="/" className="text-foreground hover:text-primary transition-colors">
             Home
           </Link>
-          <Link href="/pages/courses/allcourses" className="text-foreground hover:text-primary transition-colors">
+          <Link href="/courses/allcourses" className="text-foreground hover:text-primary transition-colors">
             Courses
           </Link>
-          <Link href="/pages/resources/allresource" className="text-foreground hover:text-primary transition-colors">
+          <Link href="/resources/allresource" className="text-foreground hover:text-primary transition-colors">
             Resources
           </Link>
-          <Link href="/pages/contact" className="text-foreground hover:text-primary transition-colors">
+          <Link href="/contact" className="text-foreground hover:text-primary transition-colors">
             Contact
           </Link>
 
