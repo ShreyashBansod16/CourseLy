@@ -16,8 +16,8 @@ export default withAuth(
           pathname == "/user/login" ||
           pathname == "/user/signup" ||
           pathname === "/" ||
-          pathname === "/pages/resources/allresource" ||
-          pathname === "/pages/courses/allcourses"
+          pathname === "/resources/allresource" ||
+          pathname === "/courses/allcourses"
         ) {
           return true;
         }
