@@ -77,13 +77,13 @@ export default function Navbar() {
             <Link href="/" onClick={toggleMenu} className="text-foreground hover:text-primary transition-colors">
               Home
             </Link>
-            <Link href="/pages/courses/allcourses" onClick={toggleMenu} className="text-foreground hover:text-primary transition-colors">
+            <Link href="/courses/allcourses" onClick={toggleMenu} className="text-foreground hover:text-primary transition-colors">
               Courses
             </Link>
-            <Link href="/pages/resources/allresource" onClick={toggleMenu} className="text-foreground hover:text-primary transition-colors">
+            <Link href="/resources/allresource" onClick={toggleMenu} className="text-foreground hover:text-primary transition-colors">
               Resources
             </Link>
-            <Link href="/pages/contact" onClick={toggleMenu} className="text-foreground hover:text-primary transition-colors">
+            <Link href="/contact" onClick={toggleMenu} className="text-foreground hover:text-primary transition-colors">
               Contact
             </Link>
 
