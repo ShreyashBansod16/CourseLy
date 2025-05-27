@@ -67,7 +67,7 @@ export default function AddResource() {
 
       if (response.ok) {
         const data = await response.json();
-        router.push("/pages/resources/allresource"); // Navigate to resources page
+        router.push("/resources/allresource"); // Navigate to resources page
       } else {
         setError("Failed to add resource");
       }
@@ -141,7 +141,7 @@ export default function AddResource() {
         <CardFooter className="flex justify-end gap-2">
           <Button
             variant="outline"
-            onClick={() => router.push("/pages/resources/allresource")}
+            onClick={() => router.push("/resources/allresource")}
           >
             Cancel
           </Button>

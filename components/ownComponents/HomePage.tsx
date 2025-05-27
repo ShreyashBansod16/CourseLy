@@ -22,12 +22,12 @@ export default function HomePage() {
         <p className="text-gray-600">Manage your CourseLy content</p>
       </div>
       <div className="flex gap-4">
-        <Link href="/pages/courses/addcourse">
+        <Link href="/courses/addcourse">
           <Button className="px-8 py-4 text-lg shadow-md hover:shadow-lg transition-shadow">
             Add Course
           </Button>
         </Link>
-        <Link href="/pages/resources/addresource">
+        <Link href="/resources/addresource">
           <Button className="px-8 py-4 text-lg shadow-md hover:shadow-lg transition-shadow">
             Add Resource
           </Button>

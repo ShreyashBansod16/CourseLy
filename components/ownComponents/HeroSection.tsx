@@ -66,7 +66,7 @@ export default function HomeSections() {
             <Button 
               size="lg" 
               className="w-full sm:w-auto relative overflow-hidden group"
-              onClick={()=>router.push('/pages/courses/allcourses')}
+              onClick={()=>router.push('/courses/allcourses')}
             >
               <span className="relative z-10">Start Learning Free</span>
               <div className="absolute inset-0 bg-gradient-to-r from-primary to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

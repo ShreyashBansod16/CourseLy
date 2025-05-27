@@ -66,7 +66,7 @@ export default function AddCourseForm() {
     setErrorMessage("");
     try {
       await axios.post("/api/courses/postCourse", formData);
-      router.push("/pages/courses/allcourses");
+      router.push("/courses/allcourses");
     } catch (error) {
       console.error("Error submitting form", error);
       setErrorMessage("Error submitting form. Please try again.");
