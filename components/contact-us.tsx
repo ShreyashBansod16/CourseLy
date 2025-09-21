@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -8,12 +8,28 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 import { useUser } from "@/app/context/UserContext";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Link from "next/link";
 
 export default function ContactUs() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [response, setResponse] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { userData } = useUser();
+  const isLoggedIn = !!userData?.email;
+
+  // Prefill when logged in
+  useEffect(() => {
+    if (userData) {
+      setName(userData.name || name);
+      setEmail(userData.email || email);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,35 +37,36 @@ export default function ContactUs() {
     setResponse(null);
 
     try {
-      const userName = userData?.name;
-      const userEmail = userData?.email;
-      const userId = userData?.id;
-      const rawResponse = await fetch("/api/send", {
+      const rawResponse = await fetch("/api/contact", {
         method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: userName,
-          id: userId,
-          email: userEmail,
-          message: message,
+          name,
+          email,
+          subject,
+          message,
         }),
       });
 
       if (!rawResponse.ok) {
-        throw new Error(`HTTP error! status: ${rawResponse.status}`);
+        const err = await rawResponse.json().catch(() => ({}));
+        throw new Error(err?.error || `HTTP error! status: ${rawResponse.status}`);
       }
 
       const content = await rawResponse.json();
 
       if (content) {
+        setName("");
+        setEmail("");
+        setSubject("");
         setMessage("");
         setResponse("Thank you for your message. Our team will get back to you soon.");
       }
     } catch (error) {
-      setResponse("An error occurred. Please try again later.");
+      setResponse((error as Error).message || "An error occurred. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -66,6 +83,20 @@ export default function ContactUs() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1">
+                <Label htmlFor="name">Name</Label>
+                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="subject">Subject (Optional)</Label>
+              <Input id="subject" value={subject} onChange={(e) => setSubject(e.target.value)} />
+            </div>
             <Textarea
               placeholder="How can we help you?"
               value={message}
@@ -73,16 +104,23 @@ export default function ContactUs() {
               className="min-h-[150px] resize-none"
               required
             />
-            <Button type="submit" className="w-full sm:w-auto" disabled={isLoading || !message.trim()}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                "Submit"
+            <div className="flex gap-3 items-center">
+              <Button type="submit" className="w-full sm:w-auto" disabled={isLoading || !message.trim()}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit"
+                )}
+              </Button>
+              {isLoggedIn && (
+                <Link href="/user/messages" className="w-full sm:w-auto">
+                  <Button variant="outline" className="w-full sm:w-auto">View My Messages</Button>
+                </Link>
               )}
-            </Button>
+            </div>
           </form>
         </CardContent>
         <Separator className="my-4" />

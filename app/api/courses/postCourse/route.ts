@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import {supabase} from '@/lib/db'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { title, description, price, detailed_description, thumbnail_link, video_link, resource_link } = body;
 
-    if (!title || !description || !price || !detailed_description || !thumbnail_link ) {
+    if (!title || !description || !price || !detailed_description || !thumbnail_link || !video_link) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
@@ -14,13 +14,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Validation failed for title/description" }, { status: 400 });
     }
 
-    const { data, error } = await supabase
+    const priceNumber = Number(price);
+    if (Number.isNaN(priceNumber) || priceNumber < 0) {
+      return NextResponse.json({ error: "Invalid price" }, { status: 400 });
+    }
+
+    const { data, error } = await supabaseAdmin
       .from('courses')
       .insert([
         {
           title,
           description,
-          price,
+          price: priceNumber,
           detailed_description,
           thumbnail_link,
           video_link,

@@ -31,6 +31,7 @@ export default function AddCourseForm() {
   });
   
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -42,7 +43,15 @@ export default function AddCourseForm() {
 
   const handleThumbnailUpload = async () => {
     const Preset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-    if (!thumbnailFile) return;
+    const ImageUrl = process.env.NEXT_PUBLIC_CLOUDINARY_URL;
+    if (!thumbnailFile) {
+      setErrorMessage("Please choose an image file first.");
+      return;
+    }
+    if (!Preset || !ImageUrl) {
+      setErrorMessage("Image upload is not configured. Please set NEXT_PUBLIC_CLOUDINARY_URL and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET in your env and restart the server.");
+      return;
+    }
     setUploadingThumbnail(true);
     setErrorMessage("");
     const uploadData = new FormData();
@@ -50,13 +59,13 @@ export default function AddCourseForm() {
     uploadData.append("upload_preset", `${Preset}`);
 
     try {
-      const ImageUrl = process.env.NEXT_PUBLIC_CLOUDINARY_URL;
       const response = await axios.post(`${ImageUrl}`, uploadData);
       setFormData((prev) => ({ ...prev, thumbnail_link: response.data.secure_url }));
       setUploadingThumbnail(false);
     } catch (error) {
       console.error("Error uploading image", error);
       setUploadingThumbnail(false);
+      setErrorMessage("Failed to upload image. Please try again.");
     }
   };
 
@@ -99,19 +108,60 @@ export default function AddCourseForm() {
               <Textarea name="detailed_description" value={formData.detailed_description} onChange={handleInputChange} required />
             </div>
 
-            <div className="flex items-center space-x-2">
-              <div>
-                <Label>Thumbnail</Label>
-                <Input type="file" accept="image/*" onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)} />
+            <div className="flex flex-col gap-2">
+              <Label>Thumbnail</Label>
+              <div className="flex items-center gap-3">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0] || null;
+                    setThumbnailFile(f);
+                    setThumbnailPreview(f ? URL.createObjectURL(f) : null);
+                  }}
+                />
+                <Button
+                  type="button"
+                  onClick={handleThumbnailUpload}
+                  disabled={uploadingThumbnail || !!formData.thumbnail_link || !thumbnailFile}
+                  className="mt-0"
+                >
+                  {uploadingThumbnail ? "Uploading..." : !!formData.thumbnail_link ? "Uploaded" : "Upload"}
+                </Button>
               </div>
-              <Button type="button" onClick={handleThumbnailUpload} disabled={uploadingThumbnail || !!formData.thumbnail_link} className="mt-2">
-                {uploadingThumbnail ? "Uploading..." : "Upload Thumbnail"}
-              </Button>
+              {(thumbnailPreview || formData.thumbnail_link) && (
+                <div className="flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={thumbnailPreview || formData.thumbnail_link}
+                    alt="Selected thumbnail preview"
+                    className="w-28 h-16 object-cover rounded border"
+                  />
+                  <span className="text-xs text-muted-foreground break-all">
+                    {thumbnailFile?.name || formData.thumbnail_link}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div>
-              <Label>Video Link (Optional)</Label>
-              <Input name="video_link" value={formData.video_link} onChange={handleInputChange} />
+              <Label>Video Link(s)</Label>
+              <Textarea
+                name="video_link"
+                value={formData.video_link}
+                onChange={handleInputChange}
+                required
+                placeholder={`Paste one or more video URLs (YouTube/Vimeo/embed or direct mp4/webm).\nSeparate multiple links with new lines or commas.`}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Example (playlist): one item per line. You can add an optional label before a pipe.
+                <br />
+                Intro | https://youtu.be/abc123
+                <br />
+                Module 1 | https://player.vimeo.com/video/987654
+                <br />
+                Or unlabeled: https://cdn.example.com/lesson1.mp4
+              </p>
             </div>
 
             <div>

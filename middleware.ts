@@ -15,10 +15,7 @@ export default withAuth(
           pathname.startsWith("/api/auth") ||
           pathname == "/user/login" ||
           pathname == "/user/signup" ||
-          pathname === "/" ||
-          pathname === "/resources/allresource" ||
-          pathname === "/courses/allcourses" ||
-          pathname.startsWith("/courses/allcourses/")
+          pathname === "/"
         ) {
           return true;
         }

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/db";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,22 +19,19 @@ export default function AddResource() {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  // Function to upload PDF to Supabase
+  // Upload PDF via server route to bypass RLS and avoid exposing keys
   const uploadPdfToSupabase = async (file: File) => {
-    const { data, error } = await supabase.storage
-      .from("pdfs") // Bucket name
-      .upload(`${file.name}`, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-
-    if (error) {
-      throw error;
+    const form = new FormData();
+    form.append("file", file);
+    const res = await fetch("/api/resources/upload", {
+      method: "POST",
+      body: form,
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.error || "Upload failed");
     }
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("pdfs").getPublicUrl(file.name);
-    return publicUrl;
+    return data.url as string;
   };
 
   const addResource = async () => {
@@ -51,12 +49,7 @@ export default function AddResource() {
       // Save resource data to your database
       const response = await fetch("/api/resources", {
         method: "POST",
-        // @ts-ignore
-        headers: {
-          "Content-Type": "application/json",
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
           description,
@@ -69,11 +62,12 @@ export default function AddResource() {
         const data = await response.json();
         router.push("/resources/allresource"); // Navigate to resources page
       } else {
-        setError("Failed to add resource");
+        const err = await response.json().catch(() => ({}));
+        setError(err?.error || "Failed to add resource");
       }
     } catch (error) {
       console.error("Error uploading resource:", error);
-      setError("Failed to upload resource");
+      setError((error as Error).message || "Failed to upload resource");
     } finally {
       setLoading(false);
     }

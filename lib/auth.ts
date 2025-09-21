@@ -1,7 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import { supabase } from "@/lib/db";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
@@ -16,14 +16,13 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      // @ts-ignore
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
 
         try {
-          const { data, error } = await supabase
+          const { data, error } = await supabaseAdmin
             .from("users")
             .select(
               "id, username, email, password, isregistered, isadmin, created_at"
@@ -66,7 +65,7 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account }) {
       if (account?.provider === "google") {
         // Check if the user already exists
-        const { data: existingUser, error } = await supabase
+        const { data: existingUser, error } = await supabaseAdmin
           .from("users")
           .select("id, email")
           .eq("email", user.email!)
@@ -74,9 +73,11 @@ export const authOptions: NextAuthOptions = {
 
         if (!existingUser) {
           // If user does not exist, create a new entry
-          const { data, error } = await supabase
+          const randomPassword = Math.random().toString(36).substring(7);
+          const hashedPassword = await bcrypt.hash(randomPassword, 10);
+          const { data, error } = await supabaseAdmin
             .from("users")
-            .insert([{ email: user.email, username: user.name, isadmin: false, password: Math.random().toString(36).substring(7) }])
+            .insert([{ email: user.email, username: user.name, isadmin: false, password: hashedPassword }])
             .select()
             .single();
           // if(data) {
@@ -114,6 +115,22 @@ export const authOptions: NextAuthOptions = {
         session.user.created_at = token.created_at;
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      try {
+        // Respect relative callbackUrl like "/courses/allcourses" or "/"
+        if (url.startsWith("/")) return `${baseUrl}${url}`;
+
+        // Allow same-origin absolute URLs
+        const to = new URL(url);
+        const base = new URL(baseUrl);
+        if (to.origin === base.origin) return url;
+
+        // External URLs fallback to home
+        return baseUrl;
+      } catch {
+        return baseUrl;
+      }
     },
   },
   pages: {

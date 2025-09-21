@@ -32,6 +32,11 @@ export default function HomePage() {
             Add Resource
           </Button>
         </Link>
+        <Link href="/admin/messages">
+          <Button variant="outline" className="px-8 py-4 text-lg shadow-sm hover:shadow-md transition-shadow">
+            View Messages
+          </Button>
+        </Link>
       </div>
     </div>
   ) : (<></>);

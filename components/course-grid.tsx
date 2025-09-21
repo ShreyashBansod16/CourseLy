@@ -1,14 +1,18 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCourses } from "@/app/context/CourseContext";
 import { CourseCard } from "@/components/course-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export function CourseGrid() {
   const { courses, loading, Finalcourses, setFinalcourses, refreshCources } =
     useCourses();
   const [search, setSearch] = useState("");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [autoOpenId, setAutoOpenId] = useState<string | null>(null);
 
   const handleSearch = (query: string) => {
     setSearch(query);
@@ -21,6 +25,33 @@ export function CourseGrid() {
     );
     setFinalcourses(filtered);
   };
+
+  // Detect successful payment redirect and trigger auto-open
+  useEffect(() => {
+    const paid = searchParams.get("paid");
+    const cid = searchParams.get("course_id");
+    const sid = searchParams.get("session_id");
+    if (paid === "1" && cid) {
+      (async () => {
+        try {
+          // If Stripe webhook didn't run locally, confirm manually using session_id
+          if (sid) {
+            await fetch(`/api/confirm?session_id=${encodeURIComponent(sid)}`);
+          }
+        } catch {
+          // ignore confirm failure; access check will handle
+        } finally {
+          setAutoOpenId(cid);
+          // Clean URL to prevent repeated auto-open on refresh
+          const url = new URL(window.location.href);
+          url.searchParams.delete("paid");
+          url.searchParams.delete("course_id");
+          url.searchParams.delete("session_id");
+          router.replace(url.pathname + (url.search ? url.search : ""));
+        }
+      })();
+    }
+  }, [searchParams, router]);
 
   if (loading)
     return (
@@ -59,6 +90,7 @@ export function CourseGrid() {
               detailed_description={course.detailed_description}
               Link={course.video_link}
               id={course.id}
+              autoOpen={autoOpenId === course.id}
             />
           ))
         ) : (

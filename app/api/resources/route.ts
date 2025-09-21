@@ -1,16 +1,26 @@
 import { NextRequest } from 'next/server';
-import {supabase} from '@/lib/db'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function POST(req: NextRequest) {
-  const { title, description, tags, pdfUrl } = await req.json();
+  try {
+    const { title, description, tags, pdfUrl } = await req.json();
 
-  const { data, error } = await supabase
-    .from('resources')
-    .insert([{ title, description, tags, pdf_url: pdfUrl }]);
+    if (!title || !description || !pdfUrl) {
+      return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
+    }
 
-  if (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 400 });
+    const { data, error } = await supabaseAdmin
+      .from('resources')
+      .insert([{ title, description, tags, pdf_url: pdfUrl }])
+      .select()
+      .single();
+
+    if (error) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 400 });
+    }
+
+    return new Response(JSON.stringify({ message: 'Resource added successfully', data }), { status: 200 });
+  } catch (e: any) {
+    return new Response(JSON.stringify({ error: e?.message || 'Unexpected error' }), { status: 500 });
   }
-
-  return new Response(JSON.stringify({ message: 'Resource added successfully', data:data }), { status: 200 });
 }

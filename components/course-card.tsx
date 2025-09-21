@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -16,6 +16,7 @@ interface CourseCardProps {
   detailed_description: string;
   Link: string;
   id: string;
+  autoOpen?: boolean;
 }
 
 export function CourseCard({
@@ -25,13 +26,76 @@ export function CourseCard({
   detailed_description,
   Link,
   id,
+  autoOpen,
 }: CourseCardProps) {
   const url = process.env.NEXT_PUBLIC_BASE_URL;
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
   const router = useRouter();
   const pathName = usePathname();
   const fullUrl = `${url?.replace(/\/$/, "")}${pathName}`;
+
+  // Parse possible playlist: split on newlines/commas and trim. Support optional label before a pipe.
+  type VideoEntry = { label: string; url: string };
+  const videoEntries = useMemo<VideoEntry[]>(() => {
+    if (!Link) return [];
+    const raw = Link.split(/[\n,]+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    return raw.map((item, idx) => {
+      const parts = item.split("|");
+      if (parts.length >= 2) {
+        const label = parts[0].trim();
+        const url = parts.slice(1).join("|").trim();
+        return { label: label || `Video ${idx + 1}`, url };
+      }
+      return { label: `Video ${idx + 1}`, url: item };
+    });
+  }, [Link]);
+
+  const toEmbed = (raw: string) => {
+    if (!raw) return { type: "none" as const };
+    const yt = /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i.exec(raw);
+    if (yt && yt[1]) {
+      return { type: "youtube" as const, src: `https://www.youtube.com/embed/${yt[1]}` };
+    }
+    const vimeo = /vimeo\.com\/(?:video\/)?(\d+)/i.exec(raw);
+    if (vimeo && vimeo[1]) {
+      return { type: "vimeo" as const, src: `https://player.vimeo.com/video/${vimeo[1]}` };
+    }
+    return { type: "file" as const, src: raw };
+  };
+
+  // Best-effort thumbnail for playlist preview
+  const getThumb = (raw: string): string => {
+    const yt = /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i.exec(raw);
+    if (yt && yt[1]) return `https://img.youtube.com/vi/${yt[1]}/hqdefault.jpg`;
+    // Generic placeholder
+    return "/placeholder.svg";
+  };
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const current = videoEntries[currentIndex]?.url || "";
+  const embed = useMemo(() => toEmbed(current), [current]);
+  const [paying, setPaying] = useState(false);
+
+  // If redirected back with a successful purchase, auto-open videos after confirming access
+  useEffect(() => {
+    if (!autoOpen) return;
+    (async () => {
+      try {
+        const accessRes = await fetch(`/api/access?course_id=${encodeURIComponent(id)}`);
+        const accessJson = await accessRes.json();
+        if (accessRes.ok && accessJson?.hasAccess) {
+          setCurrentIndex(0);
+          setVideoOpen(true);
+        }
+      } catch {
+        // ignore
+      }
+    })();
+  }, [autoOpen, id]);
 
   // Copy URL to clipboard
   const copyToClipboard = async () => {
@@ -85,6 +149,43 @@ export function CourseCard({
             >
               View Details
             </Button>
+            <Button
+              onClick={async () => {
+                try {
+                  setPaying(true);
+                  // 1) Check if user already has access
+                  const accessRes = await fetch(`/api/access?course_id=${encodeURIComponent(id)}`);
+                  const accessJson = await accessRes.json();
+                  if (accessRes.ok && accessJson?.hasAccess) {
+                    setCurrentIndex(0);
+                    setVideoOpen(true);
+                    return;
+                  }
+
+                  // 2) If not, create a checkout session and redirect
+                  const priceCents = 9900; // $99.00 — adjust as needed or pull from data
+                  const checkoutRes = await fetch('/api/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ course_id: id, title, amount: priceCents }),
+                  });
+                  const json = await checkoutRes.json();
+                  if (!checkoutRes.ok) throw new Error(json?.error || 'Failed to start checkout');
+                  if (json?.url) {
+                    window.location.href = json.url;
+                  }
+                } catch (e: any) {
+                  alert(e?.message || 'Unable to proceed');
+                } finally {
+                  setPaying(false);
+                }
+              }}
+              disabled={paying}
+              variant="secondary"
+              className="flex-1 sm:flex-none sm:w-36"
+            >
+              {paying ? 'Processing…' : 'Watch Videos'}
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -102,17 +203,93 @@ export function CourseCard({
           </div>
 
           {/* Course Details */}
-          <div className="flex flex-col items-center p-4 space-y-4">
-            <p className="text-gray-600 dark:text-gray-300 text-center px-4">
-              {detailed_description}
-            </p>
+          <div className="flex flex-col p-4 space-y-4">
+            <div className="max-h-[70vh] overflow-y-auto px-1">
+              {detailed_description
+                .split(/\n{2,}/)
+                .filter((p) => p.trim().length > 0)
+                .map((para, idx) => (
+                  <p
+                    key={idx}
+                    className="text-gray-700 dark:text-gray-200 text-left break-words whitespace-pre-line leading-7 mb-4"
+                  >
+                    {para.trim()}
+                  </p>
+                ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-            <Button
-              onClick={() => router.push(Link)}
-              className="w-40 hover:bg-primary/90"
-            >
-              Go To Course
-            </Button>
+      {/* Watch Videos Dialog */}
+      <Dialog open={videoOpen} onOpenChange={setVideoOpen}>
+        <DialogContent className="max-w-[95vw] sm:max-w-2xl lg:max-w-4xl w-full">
+          <div className="flex justify-between items-center p-3">
+            <DialogTitle className="text-2xl font-semibold">{title} — Videos</DialogTitle>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-2">
+            {/* Player */}
+            <div className="md:col-span-3">
+              {embed.type !== "none" && (
+                <div className="aspect-video w-full overflow-hidden rounded-xl bg-black shadow-lg ring-1 ring-border">
+                  {embed.type === "youtube" || embed.type === "vimeo" ? (
+                    <iframe
+                      src={embed.src}
+                      title={`${title} video ${currentIndex + 1}`}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <video className="w-full h-full" controls src={embed.src} />
+                  )}
+                </div>
+              )}
+              {/* Prev / Next */}
+              {videoEntries.length > 1 && (
+                <div className="flex justify-between items-center mt-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentIndex((i) => (i - 1 + videoEntries.length) % videoEntries.length)}
+                  >
+                    Prev
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    {currentIndex + 1} / {videoEntries.length}
+                  </span>
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentIndex((i) => (i + 1) % videoEntries.length)}
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Playlist */}
+            <div className="md:col-span-1 max-h-[60vh] overflow-auto border rounded-md p-2 space-y-2 bg-background/40">
+              {videoEntries.length === 0 && (
+                <p className="text-sm text-muted-foreground">No videos provided.</p>
+              )}
+              {videoEntries.map((v: VideoEntry, idx: number) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentIndex(idx)}
+                  className={`w-full text-left text-sm p-2 rounded-md border transition-colors flex items-center gap-3 hover:bg-secondary/60 ${
+                    idx === currentIndex ? "bg-secondary ring-1 ring-primary" : ""
+                  }`}
+                >
+                  <img
+                    src={getThumb(v.url)}
+                    alt={v.label}
+                    className="w-16 h-10 object-cover rounded"
+                  />
+                  <span className="line-clamp-2 text-left">{v.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
