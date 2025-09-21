@@ -22,12 +22,13 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
+          const emailLower = credentials.email.toLowerCase();
           const { data, error } = await supabaseAdmin
             .from("users")
             .select(
               "id, username, email, password, isregistered, isadmin, created_at"
             )
-            .eq("email", credentials.email)
+            .ilike("email", emailLower)
             .single();
 
           if (error) {
@@ -64,34 +65,40 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google") {
-        // Check if the user already exists
-        const { data: existingUser, error } = await supabaseAdmin
+        const emailLower = (user.email || "").toLowerCase();
+        // Ensure user exists and hydrate admin-related fields
+        const { data: existing } = await supabaseAdmin
           .from("users")
-          .select("id, email")
-          .eq("email", user.email!)
-          .single();
+          .select("id, email, username, isadmin, created_at")
+          .ilike("email", emailLower)
+          .maybeSingle();
 
-        if (!existingUser) {
-          // If user does not exist, create a new entry
-          const randomPassword = Math.random().toString(36).substring(7);
+        if (!existing) {
+          const randomPassword = Math.random().toString(36).slice(2);
           const hashedPassword = await bcrypt.hash(randomPassword, 10);
-          const { data, error } = await supabaseAdmin
+          const { data: created, error: createErr } = await supabaseAdmin
             .from("users")
-            .insert([{ email: user.email, username: user.name, isadmin: false, password: hashedPassword }])
-            .select()
+            .insert([{ email: emailLower, username: user.name, isadmin: false, password: hashedPassword }])
+            .select("id, email, username, isadmin, created_at")
             .single();
-          // if(data) {
-          //   console.log("User created:", data);
-          // }
-
-          if (error) {
-            console.error("Error creating user:", error);
-            return false;
-          }
-
-          user.id = data.id;
+          if (createErr || !created) return false;
+          user.id = created.id as any;
+          // @ts-ignore
+          user.isAdmin = !!created.isadmin;
+          // @ts-ignore
+          user.isRegistered = true;
+          // @ts-ignore
+          user.created_at = created.created_at;
+          user.name = created.username || user.name;
         } else {
-          user.id = existingUser.id;
+          user.id = (existing as any).id;
+          // @ts-ignore
+          user.isAdmin = !!existing.isadmin;
+          // @ts-ignore
+          user.isRegistered = true;
+          // @ts-ignore
+          user.created_at = existing.created_at;
+          user.name = existing.username || user.name;
         }
       }
       return true;
@@ -99,16 +106,36 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.isAdmin = user.isAdmin;
-        token.isRegistered = user.isRegistered;
-        token.created_at = user.created_at;
+        // @ts-ignore
+        token.isAdmin = user.isAdmin ?? token.isAdmin ?? false;
+        // @ts-ignore
+        token.isRegistered = user.isRegistered ?? token.isRegistered ?? true;
+        // @ts-ignore
+        token.created_at = user.created_at ?? token.created_at;
+        token.email = (user as any).email ?? token.email;
+      }
+      // Backfill admin flag if missing on subsequent requests
+      if (!user && token?.email && typeof (token as any).isAdmin === "undefined") {
+        try {
+          const { data } = await supabaseAdmin
+            .from("users")
+            .select("isadmin, created_at")
+            .ilike("email", (token.email as string).toLowerCase())
+            .maybeSingle();
+          if (data) {
+            // @ts-ignore
+            token.isAdmin = !!data.isadmin;
+            // @ts-ignore
+            token.created_at = token.created_at ?? data.created_at;
+          }
+        } catch {}
       }
       return token;
     },
     async session({ session, token }) {
       if (token.id) {
         session.user.id = token.id;
-        session.user.isAdmin = token.isAdmin;
+        session.user.isAdmin = (token as any).isAdmin ?? false;
         // @ts-ignore
         session.user.isRegistered = token.isRegistered;
         // @ts-ignore
