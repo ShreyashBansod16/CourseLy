@@ -6,8 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { usePathname, useRouter } from "next/navigation";
-import { Copy, X } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 interface CourseCardProps {
   imageUrl: string;
@@ -28,13 +27,9 @@ export function CourseCard({
   id,
   autoOpen,
 }: CourseCardProps) {
-  const url = process.env.NEXT_PUBLIC_BASE_URL;
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const [shareOpen, setShareOpen] = useState(false);
   const [videoOpen, setVideoOpen] = useState(false);
-  const router = useRouter();
-  const pathName = usePathname();
-  const fullUrl = `${url?.replace(/\/$/, "")}${pathName}`;
+  const sp = useSearchParams();
 
   // Parse possible playlist: split on newlines/commas and trim. Support optional label before a pipe.
   type VideoEntry = { label: string; url: string };
@@ -79,9 +74,45 @@ export function CourseCard({
   const current = videoEntries[currentIndex]?.url || "";
   const embed = useMemo(() => toEmbed(current), [current]);
   const [paying, setPaying] = useState(false);
+  const [hasAccess, setHasAccess] = useState<boolean>(false);
+  const [priceLoading, setPriceLoading] = useState<boolean>(true);
+  const [basePriceCents, setBasePriceCents] = useState<number | null>(null);
+  const [discountPriceCents, setDiscountPriceCents] = useState<number | null>(null);
+  const [remainingDiscounted, setRemainingDiscounted] = useState<number>(0);
+  const [discountActive, setDiscountActive] = useState<boolean>(false);
+  const formatINR = (cents: number) =>
+    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(cents / 100);
 
   // If redirected back with a successful purchase, auto-open videos after confirming access
   useEffect(() => {
+    // If URL contains paid=1 for this course, optimistically set access so the button shows 'Watch Videos'
+    try {
+      const paid = sp?.get('paid') === '1';
+      const courseIdFromUrl = sp?.get('course_id');
+      if (paid && courseIdFromUrl === id) {
+        setHasAccess(true);
+      }
+    } catch {}
+
+    // Fetch pricing from backend (DB-based) and check access on mount
+    (async () => {
+      try {
+        setPriceLoading(true);
+        const priceRes = await fetch(`/api/course-pricing?course_id=${encodeURIComponent(id)}`);
+        const priceJson = await priceRes.json();
+        if (priceRes.ok) {
+          setBasePriceCents(priceJson.base_price_cents);
+          setDiscountPriceCents(priceJson.discounted_price_cents);
+          setRemainingDiscounted(priceJson.remaining_discounted);
+          setDiscountActive(Boolean(priceJson.is_discount_active));
+        }
+        const res = await fetch(`/api/access?course_id=${encodeURIComponent(id)}`);
+        const json = await res.json();
+        if (res.ok && json?.hasAccess) setHasAccess(true);
+      } catch {}
+      finally { setPriceLoading(false); }
+    })();
+
     if (!autoOpen) return;
     (async () => {
       try {
@@ -90,62 +121,82 @@ export function CourseCard({
         if (accessRes.ok && accessJson?.hasAccess) {
           setCurrentIndex(0);
           setVideoOpen(true);
+          setHasAccess(true);
         }
       } catch {
         // ignore
       }
     })();
-  }, [autoOpen, id]);
-
-  // Copy URL to clipboard
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(`${fullUrl}/${id}`);
-      alert("URL copied to clipboard! ✅");
-    } catch (err) {
-      console.error("Failed to copy URL:", err);
-    }
-  };
+  }, [autoOpen, id, sp]);
 
   return (
     <>
-      <Card className="flex flex-col sm:flex-row overflow-hidden hover:shadow-lg transition-shadow duration-300 border-border">
-        {/* Image Section */}
-        <div className="w-full sm:w-1/3">
-          <AspectRatio ratio={4 / 3}>
+      <Card className="flex flex-col overflow-hidden border border-border/40 bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background/60 hover:shadow-xl transition-all duration-300 rounded-xl max-w-[680px] w-full mx-auto">
+        {/* Upper: Thumbnail */}
+        <div className="w-full">
+          <AspectRatio ratio={21 / 9}>
             <Image
               src={imageUrl || "/placeholder.svg"}
               alt={title}
               fill
               className="object-cover"
-              sizes="(max-width: 640px) 100vw, 33vw"
+              sizes="100vw"
             />
+            {/* Overlay gradient + title */}
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+            <div className="absolute bottom-2 left-2 right-2 flex">
+              <span className="truncate max-w-full text-white/95 text-sm sm:text-base font-semibold drop-shadow-md bg-black/40 backdrop-blur-sm px-2 py-1 rounded-md">
+                {title}
+              </span>
+            </div>
           </AspectRatio>
         </div>
 
-        {/* Content Section */}
-        <CardContent className="flex-1 p-4 sm:p-6 flex flex-col justify-between">
+        {/* Lower: Content */}
+        <CardContent className="flex-1 p-3 sm:p-4 flex flex-col gap-3">
           <div>
-            <h3 className="text-xl font-semibold text-foreground mb-3">
-              {title.toUpperCase()}
-            </h3>
-            <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+            <p className="text-[13px] sm:text-sm text-muted-foreground mb-1.5 line-clamp-2">
               {description}
             </p>
           </div>
 
-          {/* Buttons Section */}
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Button
-              onClick={() => setShareOpen(true)}
-              variant="outline"
-              className="flex-1 sm:flex-none sm:w-32 hover:bg-secondary/80"
-            >
-              Share Course
-            </Button>
+          {/* Price + Buttons Section */}
+          <div className="grid grid-cols-1 sm:grid-cols-[1.2fr_1fr_1fr] items-stretch gap-2">
+            {!hasAccess && (
+              <div className="w-full flex items-center justify-between rounded-lg border p-2 bg-background/50 text-xs sm:text-sm">
+                <div className="flex items-baseline gap-2">
+                  {priceLoading ? (
+                    <span className="text-muted-foreground">Loading price…</span>
+                  ) : (
+                    <>
+                      {discountActive && discountPriceCents != null ? (
+                        <>
+                          <span className="text-muted-foreground line-through">
+                            {basePriceCents != null ? formatINR(basePriceCents) : ''}
+                          </span>
+                          <span className="font-semibold text-foreground">
+                            {formatINR(discountPriceCents)}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="font-semibold text-foreground">
+                          {basePriceCents != null ? formatINR(basePriceCents) : ''}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </div>
+                {discountActive && remainingDiscounted > 0 && (
+                  <span className="text-[11px] px-2 py-0.5 rounded bg-emerald-600/15 text-emerald-600 border border-emerald-600/30 whitespace-nowrap">
+                    {remainingDiscounted} seats left
+                  </span>
+                )}
+              </div>
+            )}
             <Button
               onClick={() => setDetailsOpen(true)}
-              className="flex-1 sm:flex-none sm:w-32 hover:bg-primary/90"
+              variant="outline"
+              className="flex-1 sm:flex-none sm:w-full h-9 px-3 text-sm rounded-lg"
             >
               View Details
             </Button>
@@ -159,15 +210,15 @@ export function CourseCard({
                   if (accessRes.ok && accessJson?.hasAccess) {
                     setCurrentIndex(0);
                     setVideoOpen(true);
+                    setHasAccess(true);
                     return;
                   }
 
                   // 2) If not, create a checkout session and redirect
-                  const priceCents = 9900; // $99.00 — adjust as needed or pull from data
                   const checkoutRes = await fetch('/api/checkout', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ course_id: id, title, amount: priceCents }),
+                    body: JSON.stringify({ course_id: id, title, amount: 0 }),
                   });
                   const json = await checkoutRes.json();
                   if (!checkoutRes.ok) throw new Error(json?.error || 'Failed to start checkout');
@@ -181,10 +232,10 @@ export function CourseCard({
                 }
               }}
               disabled={paying}
-              variant="secondary"
-              className="flex-1 sm:flex-none sm:w-36"
+              variant="default"
+              className="flex-1 sm:flex-none sm:w-full h-9 px-3 text-sm rounded-lg"
             >
-              {paying ? 'Processing…' : 'Watch Videos'}
+              {paying ? 'Processing…' : hasAccess ? 'Watch Videos' : 'Pay Now'}
             </Button>
           </div>
         </CardContent>
@@ -294,36 +345,7 @@ export function CourseCard({
         </DialogContent>
       </Dialog>
 
-      {/* Share Course Dialog */}
-      <Dialog open={shareOpen} onOpenChange={setShareOpen}>
-        <DialogContent className="max-w-[90vw] sm:max-w-md md:max-w-lg w-full">
-          <div className="flex justify-between items-center p-3">
-            <DialogTitle className="text-xl font-semibold">
-              Share Course
-            </DialogTitle>
-            {/* <button onClick={() => setShareOpen(false)} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-              <X size={24} />
-            </button> */}
-          </div>
-
-          {/* Share URL Section */}
-          {/* Share URL Section */}
-<div className="flex items-center w-full px-4 py-2 border rounded-md bg-muted text-sm">
-  <div
-    className="w-full overflow-auto break-all whitespace-normal p-2 rounded-md bg-background text-foreground text-sm select-all"
-  >
-    {`${fullUrl}/${id}`}
-  </div>
-  <button
-    onClick={copyToClipboard}
-    className="ml-2 text-primary hover:text-primary/80 flex-shrink-0"
-  >
-    <Copy size={20} />
-  </button>
-</div>
-
-        </DialogContent>
-      </Dialog>
+      {/* Share functionality removed */}
     </>
   );
 }

@@ -13,6 +13,8 @@ export default withAuth(
 
         if (
           pathname.startsWith("/api/auth") ||
+          pathname.startsWith("/api/stripe/webhook") ||
+          pathname.startsWith("/api/stripe") ||
           pathname == "/user/login" ||
           pathname == "/user/signup" ||
           pathname === "/"
